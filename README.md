@@ -31,6 +31,19 @@ cp -R godot-addon-tmpl my-godot-addon
 
 更多说明见 [`godot-addon-tmpl/README.md`](godot-addon-tmpl/README.md)。
 
+### Godot 游戏
+
+[`godot-game-tmpl/`](godot-game-tmpl/) 是一个基于 Godot 4.7 的最小 2D 游戏模板，默认场景显示 `Hello, World!`。
+
+```bash
+cp -R godot-game-tmpl my-godot-game
+cd my-godot-game
+just init
+godot --editor --path game
+```
+
+Godot 项目根目录位于 `game/`。更多说明见 [`godot-game-tmpl/README.md`](godot-game-tmpl/README.md)。
+
 ## 约定
 
 - 每个模板可独立复制和使用。

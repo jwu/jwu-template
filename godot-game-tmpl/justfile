@@ -1,0 +1,56 @@
+# MY_GODOT_GAME - tool installation and common commands
+
+# Initialize development tools and Git hooks.
+init:
+  @command -v cog >/dev/null 2>&1 || cargo install cocogitto
+  @command -v gdscript-formatter >/dev/null 2>&1 || cargo install --git https://github.com/GDQuest/GDScript-formatter
+  @if [ -d .git ]; then \
+    git config core.hooksPath .githooks; \
+    echo "✓ Git hooks enabled"; \
+  else \
+    echo "! .git not found, skipping Git hooks setup"; \
+  fi
+  @echo "✓ Initialization complete"
+
+# Update installed development tools.
+upgrade:
+  cargo install cocogitto --force
+  cargo install --git https://github.com/GDQuest/GDScript-formatter --force
+
+# Verify that the Godot project loads.
+test:
+  godot --headless --path game --editor --quit
+
+# Check GDScript formatting.
+check-fmt *files='':
+  @set -e; \
+  _gd="{{files}}"; \
+  if [ -z "$_gd" ]; then _gd=$(find game -name "*.gd" -not -path "game/.godot/*"); fi; \
+  if [ -z "$_gd" ]; then echo "! No GDScript files found, skipping format check"; else echo "$_gd" | xargs gdscript-formatter --use-spaces --indent-size 2 --reorder-code --check; fi
+
+# Format GDScript.
+fmt *files='':
+  @set -e; \
+  _gd="{{files}}"; \
+  if [ -z "$_gd" ]; then _gd=$(find game -name "*.gd" -not -path "game/.godot/*"); fi; \
+  if [ -z "$_gd" ]; then echo "! No GDScript files found, skipping formatting"; else echo "$_gd" | xargs gdscript-formatter --use-spaces --indent-size 2 --reorder-code; fi
+
+# Lint GDScript.
+lint *files='':
+  @set -e; \
+  _gd="{{files}}"; \
+  if [ -z "$_gd" ]; then _gd=$(find game -name "*.gd" -not -path "game/.godot/*"); fi; \
+  if [ -z "$_gd" ]; then echo "! No GDScript files found, skipping lint"; else echo "$_gd" | xargs gdscript-formatter lint --disable max-line-length; fi
+
+# Run formatting and lint checks.
+check *files='':
+  just check-fmt {{files}}
+  just lint {{files}}
+
+# Validate Conventional Commit messages.
+lint-commit msg='':
+  @if [ "{{msg}}" = "" ]; then \
+    cog check --from-latest-tag --ignore-merge-commits; \
+  else \
+    cog verify "{{msg}}"; \
+  fi
